@@ -1,6 +1,7 @@
 package ch.heig.sio.lab1.groupD;
 
 public final class Analyze {
+
   public static void main(String[] args) {
     // TODO
     //  - Renommer le package ;
@@ -21,5 +22,7 @@ public final class Analyze {
 
     // Exemple de lecture d'un jeu de données :
     // TspData data = TspData.fromFile("data/att532.dat");
+
+
   }
 }
