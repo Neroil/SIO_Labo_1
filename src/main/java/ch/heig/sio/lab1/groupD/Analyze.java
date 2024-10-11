@@ -1,4 +1,4 @@
-package ch.heig.sio.lab1.groupX;
+package ch.heig.sio.lab1.groupD;
 
 public final class Analyze {
   public static void main(String[] args) {
