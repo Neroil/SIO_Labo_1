@@ -7,10 +7,7 @@ import ch.heig.sio.lab1.tsp.Edge;
 import ch.heig.sio.lab1.tsp.TspData;
 import ch.heig.sio.lab1.tsp.TspTour;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Random;
+import java.util.*;
 
 //Quelque soit la méthode d'insertion, on le met toujours au meilleur endroit
 
@@ -18,27 +15,30 @@ public class RandomInsert implements ObservableTspConstructiveHeuristic {
     Random rand = new Random(0x134DA73);
     ArrayList<Integer> citiesToVisit;
     int[] tabPassage;
+    //Meilleures solution possible (à éviter, faut réfléchir)
+    ArrayList<Integer> operationTab;
     int citiesToVisitIndex;
-    TspData data;
     int startCityIndex;
 
     @Override
     public TspTour computeTour(TspData data, int startCityIndex, TspHeuristicObserver observer) {
-        if(this.data == null) this.data = data;
         if(this.startCityIndex != startCityIndex) this.startCityIndex = startCityIndex;
 
         int nbCities = data.getNumberOfCities();
 
+        //Initialisation du tableau des opérations
+        operationTab = new ArrayList<>(nbCities);
         //Initialisation du tableau de passage :
         this.tabPassage = new int[nbCities];
+        //Initialisation de l'ordre de visite
+        generateShuffledCityToVisit(data);
 
         //La ville de point de départ
-        TspData.City firstCity = data.getCityCoord(startCityIndex);
-        tabPassage[0] = startCityIndex;
+        operationTab.add(startCityIndex);
 
         //Ajoute assez de ville pour avoir un triangle
         for(int i = 1; i < 3; ++i){
-            tabPassage[i] = getUnusedCity().index;
+            operationTab.add(getUnusedCity(data).index);
         }
 
         //Prenons un triangle, il faut ensuite choisir quelle arête de ce triangle enlever pour avoir un poids minimum
@@ -47,18 +47,51 @@ public class RandomInsert implements ObservableTspConstructiveHeuristic {
         //Heuristique gloutonne page 47 !
 
 
+        while(citiesToVisitIndex < nbCities - 1){ //nbCities - 1 since we remove the start city from the index we built earlier !
+            if(citiesToVisitIndex == nbCities - 2){
+                //Do nothing
+                System.out.println("BANCO");
+            }
+            insertCity(getUnusedCity(data),data);
+            observer.update(calculateEdges());
+        }
 
+        //Population du tabPassage
+        for(int i = 0; i < nbCities; ++i)
+            tabPassage[i] = operationTab.get(i);
 
-        return new TspTour(data, tabPassage, 0);
+        return new TspTour(data, tabPassage, nbCities);
     }
 
     public Iterator<Edge> calculateEdges(){
+        List<Edge> res = new ArrayList<>();
         //TODO: For the observer update
-        return null;
+        int size = operationTab.size();
+        for(int i = 0; i < size; i++) {
+
+            int next = (i + 1) % size;
+
+            res.add(new Edge(operationTab.get(i),operationTab.get(next)));
+        }
+        return res.iterator();
     }
 
-    public void insertCity(TspData.City city){
-        //Find the shortest distance between two already existing vertice
+    public void insertCity(CityTuple city, TspData data){
+        //Find the shortest distance between two already existing vertices
+        int bestDistance = Integer.MAX_VALUE;
+        int indexInsert = -1;
+        for(int i = 0; i < operationTab.size() - 1; ++i) {
+            int indexPlus = i + 1 % operationTab.size();
+            int calculatedDist = data.getDistance(operationTab.get(i), city.index) + data.getDistance(city.index, operationTab.get(indexPlus));
+            if (calculatedDist < bestDistance) {
+                bestDistance = calculatedDist;
+                indexInsert = indexPlus;
+            }
+        }
+        //The best distance has been found, insert the city now
+        if(bestDistance != Integer.MAX_VALUE && indexInsert != -1){
+            operationTab.add(indexInsert,city.index);
+        }
     }
 
     /**
@@ -66,8 +99,12 @@ public class RandomInsert implements ObservableTspConstructiveHeuristic {
      *
      * @return a random city that hasn't been visited before
      */
-    private CityTuple getUnusedCity() {
-        if (citiesToVisit == null) {
+    private CityTuple getUnusedCity(TspData data) {
+        return new CityTuple(citiesToVisitIndex,data.getCityCoord(citiesToVisit.get(citiesToVisitIndex++)));
+    }
+
+    private void generateShuffledCityToVisit(TspData data){
+
             int nbOfCities = data.getNumberOfCities();
             citiesToVisitIndex = 0;
             citiesToVisit = new ArrayList<>(nbOfCities);
@@ -77,7 +114,6 @@ public class RandomInsert implements ObservableTspConstructiveHeuristic {
             citiesToVisit.remove(startCityIndex); //Remove the initial city
 
             Collections.shuffle(citiesToVisit, rand);
-        }
-        return new CityTuple(citiesToVisitIndex,data.getCityCoord(citiesToVisit.get(citiesToVisitIndex++)));
+
     }
 }
