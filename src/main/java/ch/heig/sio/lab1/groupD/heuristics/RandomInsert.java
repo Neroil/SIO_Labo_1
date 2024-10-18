@@ -10,6 +10,7 @@ import ch.heig.sio.lab1.tsp.TspTour;
 import java.util.*;
 
 //Quelque soit la méthode d'insertion, on le met toujours au meilleur endroit
+//Faire une linked list a la main peut être bien
 
 public class RandomInsert implements ObservableTspConstructiveHeuristic {
     Random rand = new Random(0x134DA73);
@@ -38,7 +39,7 @@ public class RandomInsert implements ObservableTspConstructiveHeuristic {
 
         //Ajoute assez de ville pour avoir un triangle
         for(int i = 1; i < 3; ++i){
-            operationTab.add(getUnusedCity(data).index);
+            operationTab.add(getUnusedCity());
         }
 
         //Prenons un triangle, il faut ensuite choisir quelle arête de ce triangle enlever pour avoir un poids minimum
@@ -52,7 +53,7 @@ public class RandomInsert implements ObservableTspConstructiveHeuristic {
                 //Do nothing
                 System.out.println("BANCO");
             }
-            insertCity(getUnusedCity(data),data);
+            insertCity(getUnusedCity(),data);
             observer.update(calculateEdges());
         }
 
@@ -76,13 +77,14 @@ public class RandomInsert implements ObservableTspConstructiveHeuristic {
         return res.iterator();
     }
 
-    public void insertCity(CityTuple city, TspData data){
+    public void insertCity(int index, TspData data){
         //Find the shortest distance between two already existing vertices
         int bestDistance = Integer.MAX_VALUE;
         int indexInsert = -1;
+
         for(int i = 0; i < operationTab.size() - 1; ++i) {
             int indexPlus = i + 1 % operationTab.size();
-            int calculatedDist = data.getDistance(operationTab.get(i), city.index) + data.getDistance(city.index, operationTab.get(indexPlus));
+            int calculatedDist = data.getDistance(operationTab.get(i), index) + data.getDistance(index, operationTab.get(indexPlus)) - data.getDistance(operationTab.get(i), operationTab.get(indexPlus));
             if (calculatedDist < bestDistance) {
                 bestDistance = calculatedDist;
                 indexInsert = indexPlus;
@@ -90,7 +92,7 @@ public class RandomInsert implements ObservableTspConstructiveHeuristic {
         }
         //The best distance has been found, insert the city now
         if(bestDistance != Integer.MAX_VALUE && indexInsert != -1){
-            operationTab.add(indexInsert,city.index);
+            operationTab.add(indexInsert,index);
         }
     }
 
@@ -99,8 +101,8 @@ public class RandomInsert implements ObservableTspConstructiveHeuristic {
      *
      * @return a random city that hasn't been visited before
      */
-    private CityTuple getUnusedCity(TspData data) {
-        return new CityTuple(citiesToVisitIndex,data.getCityCoord(citiesToVisit.get(citiesToVisitIndex++)));
+    private int getUnusedCity() {
+        return citiesToVisit.get(citiesToVisitIndex++);
     }
 
     private void generateShuffledCityToVisit(TspData data){
@@ -114,6 +116,5 @@ public class RandomInsert implements ObservableTspConstructiveHeuristic {
             citiesToVisit.remove(startCityIndex); //Remove the initial city
 
             Collections.shuffle(citiesToVisit, rand);
-
     }
 }
