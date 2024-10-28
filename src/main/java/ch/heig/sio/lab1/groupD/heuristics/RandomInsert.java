@@ -13,7 +13,7 @@ import java.util.*;
 //Faire une linked list a la main peut être bien
 
 public class RandomInsert implements ObservableTspConstructiveHeuristic {
-    Random rand = new Random(0x134DA73);
+    Random rand = new Random();
     ArrayList<Integer> citiesToVisit;
     int[] tabPassage;
     //Meilleures solution possible (à éviter, faut réfléchir)
@@ -106,7 +106,7 @@ public class RandomInsert implements ObservableTspConstructiveHeuristic {
     }
 
     private void generateShuffledCityToVisit(TspData data){
-
+            rand.setSeed(0x134DA73);
             int nbOfCities = data.getNumberOfCities();
             citiesToVisitIndex = 0;
             citiesToVisit = new ArrayList<>(nbOfCities);
