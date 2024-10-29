@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Random;
 
 public class RandomInsert extends GenericConstructiveHeuristic{
-    OptimizedLinkedList<Integer> citiesToVisit;
+    ArrayList<Integer> citiesToVisit;
     Random rand = new Random();
     int citiesToVisitIndex;
 
@@ -50,6 +50,7 @@ public class RandomInsert extends GenericConstructiveHeuristic{
         int nbOfCities = data.getNumberOfCities();
         citiesToVisitIndex = 0;
         citiesToVisit = new ArrayList<>(nbOfCities);
+
         for (int i = 0; i < nbOfCities; ++i) {
             citiesToVisit.add(i);
         }

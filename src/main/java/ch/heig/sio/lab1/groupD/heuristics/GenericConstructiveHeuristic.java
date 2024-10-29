@@ -46,35 +46,59 @@ public abstract class GenericConstructiveHeuristic implements ObservableTspConst
 
     public abstract void insertLogic(TspData data, int startCityIndex, TspHeuristicObserver observer);
 
-    public Iterator<Edge> calculateEdges(){
+    public Iterator<Edge> calculateEdges() {
         List<Edge> res = new ArrayList<>();
+        OptimizedLinkedList.Node<Integer> currentNode = cycleCities.getFirst();
 
-        int size = cycleCities.size();
-        for(int i = 0; i < size; i++) {
-
-            int next = (i + 1) % size;
-
-            res.add(new Edge(cycleCities.get(i), cycleCities.get(next)));
+        if (currentNode == null) {
+            return res.iterator();
         }
+
+        OptimizedLinkedList.Node<Integer> firstNode = currentNode;
+        do {
+            OptimizedLinkedList.Node<Integer> nextNode = currentNode.getNext();
+            if (nextNode == null) {
+                nextNode = firstNode; // Loop back to the start
+            }
+            res.add(new Edge(currentNode.getValue(), nextNode.getValue()));
+            currentNode = nextNode;
+        } while (currentNode != firstNode);
+
         return res.iterator();
     }
 
-    public void insertCity(int index, TspData data){
-        //Find the shortest distance between two already existing vertices
+    public void insertCity(int index, TspData data) {
+        // Find the shortest distance between two already existing vertices
         int bestDistance = Integer.MAX_VALUE;
-        int indexInsert = -1;
+        OptimizedLinkedList.Node<Integer> bestNode = null;
 
-        for(int i = 0; i < cycleCities.size() - 1; ++i) {
-            int indexPlus = i + 1 % cycleCities.size();
-            int calculatedDist = data.getDistance(cycleCities.get(i), index) + data.getDistance(index, cycleCities.get(indexPlus)) - data.getDistance(cycleCities.get(i), cycleCities.get(indexPlus));
+        OptimizedLinkedList.Node<Integer> currentNode = cycleCities.getFirst();
+        if (currentNode == null) {
+            return;
+        }
+
+        OptimizedLinkedList.Node<Integer> firstNode = currentNode;
+        do {
+            OptimizedLinkedList.Node<Integer> nextNode = currentNode.getNext();
+            if (nextNode == null) {
+                nextNode = firstNode; // Loop back to the start
+            }
+
+            int calculatedDist = data.getDistance(currentNode.getValue(), index) +
+                    data.getDistance(index, nextNode.getValue()) -
+                    data.getDistance(currentNode.getValue(), nextNode.getValue());
+
             if (calculatedDist < bestDistance) {
                 bestDistance = calculatedDist;
-                indexInsert = indexPlus;
+                bestNode = currentNode;
             }
-        }
-        //The best distance has been found, insert the city now
-        if(bestDistance != Integer.MAX_VALUE && indexInsert != -1){
-            cycleCities.add(indexInsert,index);
+
+            currentNode = nextNode;
+        } while (currentNode != firstNode);
+
+        // The best distance has been found, insert the city now
+        if (bestNode != null) {
+            cycleCities.insertAfter(bestNode, index);
         }
     }
 

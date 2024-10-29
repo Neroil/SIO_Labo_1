@@ -50,6 +50,7 @@ public class ClosestFirstInsert extends GenericConstructiveHeuristic {
         }
 
         //Boucle pour ajouter le reste
+
     }
 
 

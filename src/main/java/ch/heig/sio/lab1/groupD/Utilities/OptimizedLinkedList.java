@@ -23,11 +23,16 @@ public class OptimizedLinkedList<T>{
     private Node<T> head;
     private Node<T> tail;
 
+    private int size;
+
     public Node<T> insertAfter(Node<T> n, T value){
         Node<T> newNode = new Node<>(value);
         Node<T> afterN = n.next;
         n.next = newNode;
         newNode.next = afterN;
+
+        ++size;
+
         return newNode;
     }
 
@@ -45,10 +50,17 @@ public class OptimizedLinkedList<T>{
 
         tail.next = newNode;
         tail = newNode;
+
+        ++size;
+
         return newNode;
     }
 
     public boolean isEmpty(){
         return tail == null && head == null;
+    }
+
+    public int size(){
+        return size;
     }
 }
