@@ -18,18 +18,6 @@ public class RandomInsert extends GenericConstructiveHeuristic{
         //Initialisation de l'ordre de visite
         generateShuffledCityToVisit(data, startCityIndex);
 
-
-        //Ajoute assez de ville pour avoir un triangle
-        for(int i = 1; i < 3; ++i){
-            cycleCities.add(getUnusedCity());
-        }
-
-        //Prenons un triangle, il faut ensuite choisir quelle arête de ce triangle enlever pour avoir un poids minimum
-        // lors de l'insertion de la ville aléatoire
-        //Ne pas stocker d'arêtes
-        //Heuristique gloutonne page 47 !
-
-
         while(citiesToVisitIndex < data.getNumberOfCities() - 1){ //nbCities - 1 since we remove the start city from the index we built earlier !
             insertCity(getUnusedCity(),data);
             observer.update(calculateEdges());

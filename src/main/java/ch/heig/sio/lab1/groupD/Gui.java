@@ -2,6 +2,8 @@ package ch.heig.sio.lab1.groupD;
 
 import ch.heig.sio.lab1.display.HeuristicComboItem;
 import ch.heig.sio.lab1.display.TspSolverGui;
+import ch.heig.sio.lab1.groupD.heuristics.ClosestFirstInsert;
+import ch.heig.sio.lab1.groupD.heuristics.FurthestFirstInsert;
 import ch.heig.sio.lab1.groupD.heuristics.RandomInsert;
 import ch.heig.sio.lab1.sample.CanonicalTour;
 //import com.formdev.flatlaf.FlatLightLaf;
@@ -11,6 +13,8 @@ public final class Gui {
     HeuristicComboItem[] heuristics = {
         new HeuristicComboItem("Canonical tour", new CanonicalTour()),
             new HeuristicComboItem("Random insert", new RandomInsert()),
+            new HeuristicComboItem("Closest First", new ClosestFirstInsert()),
+            new HeuristicComboItem("Furthest First", new FurthestFirstInsert()),
         // TODO: Add your heuristics here
     };
 

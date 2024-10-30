@@ -15,9 +15,12 @@ public abstract class GenericConstructiveHeuristic implements ObservableTspConst
 
     //Meilleures solution possible (à éviter, faut réfléchir)
     OptimizedLinkedList<Integer> cycleCities;
+    int distance;
 
     @Override
     public TspTour computeTour(TspData data, int startCityIndex, TspHeuristicObserver observer) {
+
+        distance = 0;
 
         int nbCities = data.getNumberOfCities();
 
@@ -41,7 +44,7 @@ public abstract class GenericConstructiveHeuristic implements ObservableTspConst
             currNode = currNode.getNext();
         }
 
-        return new TspTour(data, finalCycle, nbCities);
+        return new TspTour(data, finalCycle, distance);
     }
 
     public abstract void insertLogic(TspData data, int startCityIndex, TspHeuristicObserver observer);
@@ -98,7 +101,13 @@ public abstract class GenericConstructiveHeuristic implements ObservableTspConst
 
         // The best distance has been found, insert the city now
         if (bestNode != null) {
+            OptimizedLinkedList.Node<Integer> nextNode = bestNode.getNext();
+            if (nextNode == null) {
+                nextNode = firstNode; // Loop back to the start
+            }
             cycleCities.insertAfter(bestNode, index);
+            distance += bestDistance;
+            //System.out.println(distance);
         }
     }
 
