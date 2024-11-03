@@ -15,7 +15,6 @@ public final class Gui {
             new HeuristicComboItem("Random insert", new RandomInsert()),
             new HeuristicComboItem("Closest First", new ClosestFirstInsert()),
             new HeuristicComboItem("Furthest First", new FurthestFirstInsert()),
-        // TODO: Add your heuristics here
     };
 
     // May not work on all platforms, comment out if necessary

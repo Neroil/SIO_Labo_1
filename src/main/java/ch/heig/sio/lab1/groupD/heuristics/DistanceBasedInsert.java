@@ -38,7 +38,7 @@ public abstract class DistanceBasedInsert extends GenericConstructiveHeuristic {
         }
 
         if(selectedCityNode == null){
-            System.out.println("Wtf ??");
+            System.out.println("No closest city, make sure you have at least 2 cities");
             return;
         }
 
@@ -46,12 +46,14 @@ public abstract class DistanceBasedInsert extends GenericConstructiveHeuristic {
         do {
             //Add the closestCity
             insertCity(selectedCityNode.getValue().getIndex(),data);
+            observer.update(calculateEdges());
+
             //Remove the city
             outsideCycleCitiesDistance.remove(selectedCityNode);
             //Update the distances and get the new city
             selectedCityNode = updateDistanceAndGetCity(selectedCityNode.getValue(),data);
 
-            observer.update(calculateEdges());
+
         } while (!outsideCycleCitiesDistance.isEmpty() && selectedCityNode != null);
     }
 
@@ -60,15 +62,23 @@ public abstract class DistanceBasedInsert extends GenericConstructiveHeuristic {
         OptimizedLinkedList.Node<CityDistanceTuple> currNode = outsideCycleCitiesDistance.getFirst();
         if(currNode == null) return null;
 
-        OptimizedLinkedList.Node<CityDistanceTuple> newClosestCityNode = outsideCycleCitiesDistance.getFirst();
+        //Update the distances
         do {
             int currDistance = currNode.getValue().getDistance();
             int maybeNextDistance = data.getDistance(cityToCompareTo.getIndex(),
                     currNode.getValue().getIndex());
 
-            if(cityDistanceSelection(currDistance, maybeNextDistance)){
+            if(maybeNextDistance < currDistance){
                 currNode.getValue().setDistance(maybeNextDistance);
             }
+
+            currNode = currNode.getNext();
+        } while (currNode != null);
+
+        //Find the new closest city
+        OptimizedLinkedList.Node<CityDistanceTuple> newClosestCityNode = outsideCycleCitiesDistance.getFirst();
+        currNode = outsideCycleCitiesDistance.getFirst();
+        do {
 
             if(cityDistanceSelection(currNode.getValue().getDistance(),newClosestCityNode.getValue().getDistance())){
                 newClosestCityNode = currNode;
