@@ -1,4 +1,7 @@
-Added manually, so you don't have to run the tests yourself (it's slow).
+Statistical analysis of the results of the TSP solver for the different datasets and insertion strategies.
+Group D - Lab 1 - TSP
+
+The performance is a percentage of the mean distance compared to the optimal distance. It should never be below 100% and the closer to 100% the better.
 
 Analysis for dataset: pcb442
 Optimal tour length: 50’778
