@@ -1,0 +1,67 @@
+Added manually, so you don't have to run the tests yourself (it's slow).
+
+Analysis for dataset: pcb442
+Optimal tour length: 50’778
+Metric              Random insert     Closest First     Farthest First
+--------------------------------------------------------------------------
+Max                 59’650.00         61’829.00         59’875.00
+Min                 56’983.00         59’212.00         55’468.00
+Median              58’324.00         60’287.00         57’398.00
+Mean                58’263.21         60’345.02         57’407.23
+Standard Deviation  494.66            543.54            723.77
+Performance (%)     114.74            118.84            113.06
+
+Analysis for dataset: att532
+Optimal tour length: 86’729
+Metric              Random insert     Closest First     Farthest First
+--------------------------------------------------------------------------
+Max                 98’426.00         108’741.00        97’886.00
+Min                 94’465.00         106’471.00        91’483.00
+Median              96’823.00         107’443.00        94’500.50
+Mean                96’783.72         107’480.69        94’532.50
+Standard Deviation  694.98            420.99            1’096.84
+Performance (%)     111.59            123.93            109.00
+
+Analysis for dataset: u574
+Optimal tour length: 36’905
+Metric              Random insert     Closest First     Farthest First
+--------------------------------------------------------------------------
+Max                 42’099.00         46’162.00         42’027.00
+Min                 40’787.00         44’731.00         39’379.00
+Median              41’411.00         45’559.00         40’819.00
+Mean                41’403.64         45’518.51         40’804.96
+Standard Deviation  306.59            313.00            456.40
+Performance (%)     112.19            123.34            110.57
+
+Analysis for dataset: pcb1173
+Optimal tour length: 56’892
+Metric              Random insert     Closest First     Farthest First
+--------------------------------------------------------------------------
+Max                 67’123.00         72’806.00         67’238.00
+Min                 65’199.00         70’768.00         63’628.00
+Median              65’997.00         72’358.00         65’704.00
+Mean                66’036.55         72’216.36         65’705.78
+Standard Deviation  348.88            446.77            499.12
+Performance (%)     116.07            126.94            115.49
+
+Analysis for dataset: nrw1379
+Optimal tour length: 56’638
+Metric              Random insert     Closest First     Farthest First
+--------------------------------------------------------------------------
+Max                 64’375.00         69’778.00         64’229.00
+Min                 62’769.00         68’982.00         61’518.00
+Median              63’667.00         69’473.00         62’870.00
+Mean                63’659.52         69’459.90         62’879.20
+Standard Deviation  251.58            143.23            397.71
+Performance (%)     112.40            122.64            111.02
+
+Analysis for dataset: u1817
+Optimal tour length: 57’201
+Metric              Random insert     Closest First     Farthest First
+--------------------------------------------------------------------------
+Max                 69’518.00         71’537.00         71’227.00
+Min                 67’620.00         70’139.00         67’089.00
+Median              68’678.00         70’931.00         69’019.00
+Mean                68’644.25         70’906.58         69’001.62
+Standard Deviation  392.32            238.36            553.75
+Performance (%)     120.01            123.96            120.63

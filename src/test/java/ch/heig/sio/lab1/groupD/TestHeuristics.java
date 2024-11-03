@@ -3,12 +3,17 @@ package ch.heig.sio.lab1.groupD;
 
 import ch.heig.sio.lab1.TestUtils;
 import ch.heig.sio.lab1.groupD.heuristics.ClosestFirstInsert;
-import ch.heig.sio.lab1.groupD.heuristics.FurthestFirstInsert;
+import ch.heig.sio.lab1.groupD.heuristics.FarthestFirstInsert;
 import ch.heig.sio.lab1.groupD.heuristics.RandomInsert;
 import ch.heig.sio.lab1.tsp.TspConstructiveHeuristic;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests for the heuristics
+ * @author Edwin Häffner
+ * @author Arthur Junod
+ */
 public class TestHeuristics {
     private static TspConstructiveHeuristic randomInsert;
     private static TspConstructiveHeuristic farthestInsert;
@@ -17,7 +22,7 @@ public class TestHeuristics {
     @BeforeAll
     public static void setUpHeuristic(){
         randomInsert = new RandomInsert();
-        farthestInsert = new FurthestFirstInsert();
+        farthestInsert = new FarthestFirstInsert();
         closestInsert = new ClosestFirstInsert();
     }
 

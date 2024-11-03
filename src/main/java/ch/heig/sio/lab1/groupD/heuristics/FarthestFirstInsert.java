@@ -1,6 +1,11 @@
 package ch.heig.sio.lab1.groupD.heuristics;
 
-public class FurthestFirstInsert extends DistanceBasedInsert{
+/**
+ * The specification for {@link DistanceBasedInsert} for the farthest first heuristic.
+ * @author Edwin Häffner
+ * @author Arthur Junod
+ */
+public class FarthestFirstInsert extends DistanceBasedInsert{
     @Override
     boolean cityDistanceSelection(int d1, int d2) {
         return d1 > d2;

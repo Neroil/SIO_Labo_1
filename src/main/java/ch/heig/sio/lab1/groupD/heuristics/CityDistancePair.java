@@ -1,10 +1,15 @@
 package ch.heig.sio.lab1.groupD.heuristics;
 
-import ch.heig.sio.lab1.groupD.Utilities.Tuple;
+import ch.heig.sio.lab1.groupD.Utilities.Pair;
 
-public class CityDistanceTuple extends Tuple<Integer,Integer> {
+/**
+ * The specification of {@link Pair} for one city and a distance.
+ * @author Edwin Häffner
+ * @author Arthur Junod
+ */
+public class CityDistancePair extends Pair<Integer,Integer> {
 
-    public CityDistanceTuple(int index, int distance) {
+    public CityDistancePair(int index, int distance) {
         super(index, distance);
     }
 

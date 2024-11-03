@@ -1,10 +1,18 @@
 package ch.heig.sio.lab1.groupD.Utilities;
 
-public class Tuple<T,U>{
+
+/**
+ * A simple pair class that allows to only have basics methods.
+ * @param <T>   The type of the first value of the pair
+ * @param <U>   The type of the second value of the pair
+ * @author Edwin Häffner
+ * @author Arthur Junod
+ */
+public class Pair<T,U>{
     private T firstValue;
     private U secondValue;
 
-    public Tuple(T v1, U v2){
+    public Pair(T v1, U v2){
         firstValue = v1;
         secondValue = v2;
     }

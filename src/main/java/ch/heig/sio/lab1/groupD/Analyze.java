@@ -2,119 +2,191 @@ package ch.heig.sio.lab1.groupD;
 
 import ch.heig.sio.lab1.display.HeuristicComboItem;
 import ch.heig.sio.lab1.groupD.heuristics.ClosestFirstInsert;
-import ch.heig.sio.lab1.groupD.heuristics.FurthestFirstInsert;
+import ch.heig.sio.lab1.groupD.heuristics.FarthestFirstInsert;
 import ch.heig.sio.lab1.groupD.heuristics.RandomInsert;
-import ch.heig.sio.lab1.sample.CanonicalTour;
 import ch.heig.sio.lab1.tsp.TspData;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.text.DecimalFormat;
+import java.util.*;
 
 import static java.util.Collections.max;
 import static java.util.Collections.min;
 
+/**
+ * Used to get different metrics on the heuristics.
+ * @author Edwin Häffner
+ * @author Arthur Junod
+ */
 public final class Analyze {
 
-  public static void main(String[] args) {
-    // TODO
-    //  - Renommer le package ;
-    //  - Implémenter les différentes heuristiques en écrivant le code dans ce package, et uniquement celui-ci
-    //    (sous-packages et packages de tests ok) ;
-    //  - Factoriser le code commun entre les différentes heuristiques ;
-    //  - Documentation soignée comprenant :
-    //    - la javadoc, avec auteurs et description des implémentations ;
-    //    - des commentaires sur les différentes parties de vos algorithmes.
+    private record Statistics(double max, double min, double median, double mean, double stdDev) {}
 
-    // Longueurs optimales :
-    // pcb442 : 50778
-    // att532 : 86729
-    // u574 : 36905
-    // pcb1173   : 56892
-    // nrw1379  : 56638
-    // u1817 : 57201
+    public static void main(String[] args) {
 
-    //FAIRE TEST
+        //Array of all the heuristics
+        HeuristicComboItem[] heuristics = {
+                new HeuristicComboItem("Random insert", new RandomInsert()),
+                new HeuristicComboItem("Closest First", new ClosestFirstInsert()),
+                new HeuristicComboItem("Farthest First", new FarthestFirstInsert()),
+        };
 
-    // Exemple de lecture d'un jeu de données :
-    // TspData data = TspData.fromFile("data/att532.dat");
+        // Array of files
+        String[] files = {"pcb442", "att532", "u574", "pcb1173", "nrw1379", "u1817"};
+        long[] optimalDistances = {50778, 86729, 36905, 56892, 56638, 57201};
 
-    // Min max, moyenne, médiane et écart-type des longueurs de tournées pour chaque heuristique
-    // Absolu et relatif par rapport à la longueur optimale
+        System.out.println("Analyzing heuristics...");
+        System.out.println("The performance is a percentage of the mean distance compared to the optimal distance. It should never be below 100% and the closer to 100% the better.");
 
-    //Tableau de toutes les heuristiques :
-    HeuristicComboItem[] heuristics = {
-            new HeuristicComboItem("Random insert", new RandomInsert()),
-            new HeuristicComboItem("Closest First", new ClosestFirstInsert()),
-            new HeuristicComboItem("Furthest First", new FurthestFirstInsert()),
-    };
+        // Loop through all the files
+        for (int fileIndex = 0; fileIndex < files.length; fileIndex++) {
+            String file = files[fileIndex];
 
-    // Tableau de tous les fichiers :
-     String[] files = {"pcb442", "att532", "u574", "pcb1173", "nrw1379", "u1817"};
+            // Open the file and analyze the heuristics
+            try {
+                TspData data = TspData.fromFile("data/" + file + ".dat");
+                int numberOfCities = data.getNumberOfCities();
 
-     for (String file : files){
-       try {
+                System.out.println("\nProcessing dataset: " + file + ".dat (" + numberOfCities + " cities)");
+                Map<String, Statistics> statsMap = new LinkedHashMap<>();
 
-         TspData data = TspData.fromFile("data/" + file + ".dat");
-         System.out.println("Processing file " + file + ".dat");
+                // Loop through all the heuristics
+                for (HeuristicComboItem heuristic : heuristics) {
+                    ArrayList<Long> results = new ArrayList<>();
+                    long meanValue = 0;
 
-         int size = data.getNumberOfCities();
-         System.out.println("Size of dataset : " + size);
-         ArrayList<Long> results = new ArrayList<>(size);
-         long meanValue = 0;
+                    // Loop through all the cities
+                    for (int i = 0; i < numberOfCities; ++i) {
+                        long length = heuristic.computeTour(data, i).length();
+                        results.add(length);
+                        meanValue += length;
 
-         for (HeuristicComboItem heuristic : heuristics){
+                        updateProgress(i + 1, numberOfCities, heuristic.toString());
+                    }
 
-           //Clear the results
-           results.clear();
-           meanValue = 0;
+                    double mean = (double) meanValue / data.getNumberOfCities();
+                    double medianValue = median(results);
+                    double stdDevValue = stdDev(results, mean);
 
+                    statsMap.put(heuristic.toString(), new Statistics(
+                            max(results),
+                            min(results),
+                            medianValue,
+                            mean,
+                            stdDevValue
+                    ));
+                }
 
-           for(int i = 0; i < size; ++i){
-             long length = heuristic.computeTour(data,i).length();
-             results.add(length);
-             meanValue += length;
+                printStatistics(file, statsMap, optimalDistances[fileIndex]);
 
-           }
-
-           long mean = meanValue / (long)size;
-
-           System.out.println("Processing heuristic : " + heuristic + " for file " + file + ".dat");
-              System.out.println("Min : " + min(results));
-              System.out.println("Max : " + max(results));
-              System.out.println("Moyenne : " + mean );
-              System.out.println("Médiane : " + median(results));
-              System.out.println("Ecart-type : " + stdDev(results, mean));
-         }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la lecture du fichier " + file + ".dat");
-            System.err.println(e.getMessage());
-            return;
-       }
-
-     }
-
-  }
-
-  public static double median(List<Long> values) {
-    Collections.sort(values);
-    int middle = values.size() / 2;
-    if (values.size() % 2 == 0) {
-      return (values.get(middle - 1) + values.get(middle)) / 2.0;
-    } else {
-      return values.get(middle);
+            } catch (Exception e) {
+                System.err.println("There was an error in processing " + file + ".dat");
+                System.err.println(e.getMessage());
+                return;
+            }
+        }
     }
-  }
 
-  public static double stdDev(List<Long> values, long mean) {
-    double sum = 0;
-    for (Long value : values) {
-      sum += Math.pow(value - mean, 2);
+    public static double median(List<Long> values) {
+        Collections.sort(values);
+        int middle = values.size() / 2;
+        if (values.size() % 2 == 0) {
+            return (values.get(middle - 1) + values.get(middle)) / 2.0;
+        } else {
+            return values.get(middle);
+        }
     }
-    return Math.sqrt(sum / values.size());
-  }
+
+    public static double stdDev(List<Long> values, double mean) {
+        double sum = 0;
+        for (Long value : values) {
+            sum += Math.pow(value - mean, 2);
+        }
+        return Math.sqrt(sum / (values.size() - 1));
+    }
+
+    /**
+     * Print the statistics for the heuristics in a nice readable format.
+     * Generated with ClaudeAI.
+     *
+     * @param filename The name of the file being analyzed
+     * @param heuristicStats The statistics for each heuristic
+     * @param optimalDistance The optimal distance for the dataset
+     */
+    private static void printStatistics(String filename, Map<String, Statistics> heuristicStats, long optimalDistance) {
+        int metricWidth = 20;
+        int valueWidth = 18;
+
+        // Print header
+        System.out.println("\nAnalysis for dataset: " + filename);
+        System.out.println("Optimal tour length: " + String.format("%,d", optimalDistance));
+        System.out.printf("%-" + metricWidth + "s", "Metric");
+        for (String heuristic : heuristicStats.keySet()) {
+            System.out.printf("%-" + valueWidth + "s", heuristic);
+        }
+        System.out.println();
+
+        // Print separator
+        System.out.println("-".repeat(metricWidth + (valueWidth * heuristicStats.size())));
+
+        // Print statistics
+        String[] metrics = {"Max", "Min", "Median", "Mean", "Standard Deviation", "Performance (%)"};
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+
+        for (String metric : metrics) {
+            System.out.printf("%-" + metricWidth + "s", metric);
+            for (Statistics stats : heuristicStats.values()) {
+                double value = switch (metric) {
+                    case "Max" -> stats.max;
+                    case "Min" -> stats.min;
+                    case "Median" -> stats.median;
+                    case "Mean" -> stats.mean;
+                    case "Standard Deviation" -> stats.stdDev;
+                    case "Performance (%)" -> (stats.mean / optimalDistance) * 100;
+                    default -> 0.0;
+                };
+                System.out.printf("%-" + valueWidth + "s", df.format(value));
+            }
+            System.out.println();
+        }
+    }
+
+    /**
+     * Display a progress bar for the current heuristic tested.
+     * Generated with ClaudeAI.
+     * @param current           The current city processed, used to track progress
+     * @param total             The total number of cities
+     * @param currentHeuristic  The name of the current heuristic tested
+     */
+    private static void updateProgress(int current, int total, String currentHeuristic) {
+        int progressBarWidth = 40;
+        double percentage = (double) current / total * 100;
+        int completedWidth = progressBarWidth * current / total;
+
+        // Create the progress bar
+        StringBuilder progressBar = new StringBuilder("[");
+        for (int i = 0; i < progressBarWidth; i++) {
+            if (i < completedWidth) {
+                progressBar.append("=");
+            } else if (i == completedWidth) {
+                progressBar.append(">");
+            } else {
+                progressBar.append(" ");
+            }
+        }
+        progressBar.append("]");
+
+        // Print the progress bar and percentage
+        System.out.print("\r" + currentHeuristic + " Progress: " + progressBar + " " +
+                String.format("%.1f%%", percentage) + "    "); // Extra spaces to clear any previous longer text
+
+        // Print newline if we're done processing
+        if (current == total) {
+            System.out.println();
+        }
+    }
+
 
 
 }
+
+

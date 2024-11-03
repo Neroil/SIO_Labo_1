@@ -1,38 +1,40 @@
 package ch.heig.sio.lab1.groupD.heuristics;
 
-//MODIFIER, STOCKER LES INFORMATIONS POUR NE PAS REFAIRE DES CALCULS (MAJ) DEJA EXISTANT POUR EVITER LE O(n³) chercher O(n²)!!!!!!!!!!!!!!!!!!!! :^(
-
 import ch.heig.sio.lab1.display.TspHeuristicObserver;
 import ch.heig.sio.lab1.groupD.Utilities.OptimizedLinkedList;
-import ch.heig.sio.lab1.groupD.Utilities.Tuple;
 import ch.heig.sio.lab1.tsp.TspData;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-//Au début, on a un tableau de toutes les villes qui sont hors tournée, elles vont tous pointer vers la ville initiale.
-//On parcourt pour trouver la ville la plus proche
-//Ensuite, nous ajoutons la ville la plus proche et mettons à jour ce tableau des villes hors tournées. Elles vont soit pointer la ville 1 ou la ville 2
+/**
+ * The abstract class used in {@link GenericConstructiveHeuristic} to implement a distance based heuristic (far or close).
+ * @author Edwin Häffner
+ * @author Arthur Junod
+ */
 public abstract class DistanceBasedInsert extends GenericConstructiveHeuristic {
-    OptimizedLinkedList<CityDistanceTuple> outsideCycleCitiesDistance;
+    OptimizedLinkedList<CityDistancePair> outsideCycleCitiesDistance;
 
-    //TODO : FAIRE SA PROPRE LINKED LIST
+    /**
+     * The insert logic for the distance based heuristic.
+     * It starts by populating the list of cities outside the tour and then loop on the logic to add them to the tour until all are added.
+     * @param data              The TspData used to get information on the cities
+     * @param startCityIndex    The city from which the tour starts
+     * @param observer          The observer used to update the GUI
+     */
     @Override
     public void insertLogic(TspData data, int startCityIndex, TspHeuristicObserver observer) {
         outsideCycleCitiesDistance = new OptimizedLinkedList<>();
 
-        int closestDistance = getMinOrMax();
-        OptimizedLinkedList.Node<CityDistanceTuple> selectedCityNode = null;
+        int selectedDistance = getMinOrMax();
+        OptimizedLinkedList.Node<CityDistancePair> selectedCityNode = null;
 
-        //Populate with distance to startCityIndex and get the closest
+        //Populate with distance to startCityIndex and the city
         for (int i = 0; i < data.getNumberOfCities(); ++i){
             if(i == startCityIndex) continue;
 
             int distance = data.getDistance(i,startCityIndex);
-            OptimizedLinkedList.Node<CityDistanceTuple> currNode = outsideCycleCitiesDistance.add(new CityDistanceTuple(i,distance));
+            OptimizedLinkedList.Node<CityDistancePair> currNode = outsideCycleCitiesDistance.add(new CityDistancePair(i,distance));
 
-            if (cityDistanceSelection(distance, closestDistance)){
-                closestDistance = distance;
+            if (cityDistanceSelection(distance, selectedDistance)){
+                selectedDistance = distance;
                 selectedCityNode = currNode;
             }
         }
@@ -42,24 +44,30 @@ public abstract class DistanceBasedInsert extends GenericConstructiveHeuristic {
             return;
         }
 
-        //Boucle pour ajouter le reste
+        //Main loop logic
         do {
-            //Add the closestCity
+            //Add the selected city
             insertCity(selectedCityNode.getValue().getIndex(),data);
             observer.update(calculateEdges());
 
             //Remove the city
             outsideCycleCitiesDistance.remove(selectedCityNode);
+
             //Update the distances and get the new city
             selectedCityNode = updateDistanceAndGetCity(selectedCityNode.getValue(),data);
-
 
         } while (!outsideCycleCitiesDistance.isEmpty() && selectedCityNode != null);
     }
 
 
-    private OptimizedLinkedList.Node<CityDistanceTuple> updateDistanceAndGetCity(CityDistanceTuple cityToCompareTo, TspData data){
-        OptimizedLinkedList.Node<CityDistanceTuple> currNode = outsideCycleCitiesDistance.getFirst();
+    /**
+     * Update the distance of all the cities not in the cycle to the cityToCompareTo and return the new city to add.
+     * @param cityToCompareTo   The city to compare the distances to, it should be the latest city added to the cycle
+     * @param data              The TspData used to get the distances
+     * @return                  The new city to then add to the cycle
+     */
+    private OptimizedLinkedList.Node<CityDistancePair> updateDistanceAndGetCity(CityDistancePair cityToCompareTo, TspData data){
+        OptimizedLinkedList.Node<CityDistancePair> currNode = outsideCycleCitiesDistance.getFirst();
         if(currNode == null) return null;
 
         //Update the distances
@@ -75,21 +83,32 @@ public abstract class DistanceBasedInsert extends GenericConstructiveHeuristic {
             currNode = currNode.getNext();
         } while (currNode != null);
 
-        //Find the new closest city
-        OptimizedLinkedList.Node<CityDistanceTuple> newClosestCityNode = outsideCycleCitiesDistance.getFirst();
+        //Find the city based on cityDistanceSelection() implementation
+        OptimizedLinkedList.Node<CityDistancePair> selectedCity = outsideCycleCitiesDistance.getFirst();
         currNode = outsideCycleCitiesDistance.getFirst();
         do {
 
-            if(cityDistanceSelection(currNode.getValue().getDistance(),newClosestCityNode.getValue().getDistance())){
-                newClosestCityNode = currNode;
+            if(cityDistanceSelection(currNode.getValue().getDistance(),selectedCity.getValue().getDistance())){
+                selectedCity = currNode;
             }
 
             currNode = currNode.getNext();
         } while (currNode != null);
 
-        return newClosestCityNode;
+        return selectedCity;
     }
 
+    /**
+     * The abstract method called to select the city to insert in our tour.
+     * @param d1    Distance of the new city to test if selected
+     * @param d2    Distance of the city already selected
+     * @return      A boolean that update replaces the selected city by the tested one if True
+     */
     abstract boolean cityDistanceSelection(int d1, int d2);
+
+    /**
+     * The abstract method called when initialising the selected distance at the start, useful when using a distance based heuristic.
+     * @return  The initial value of the slected distance, here Integer.MAX_VALUE or Integer.MIN_VALUE
+     */
     abstract int getMinOrMax();
 }
